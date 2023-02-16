@@ -43,8 +43,8 @@ pub mod pallet {
 	pub type Something5<T> = StorageValue<_, u32, OptionQuery>;
 
 	// TODO: Make this work!
-	// #[pallet::storage]
-	// pub type Something6<T: Config> = StorageValue<_, T::AccountId, ValueQuery>;
+	#[pallet::storage]
+	pub type Something6<T: Config> = StorageValue<_, T::AccountId, OptionQuery>;
 
 	#[pallet::storage]
 	pub type SomeMap1<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, u32, ValueQuery>;
