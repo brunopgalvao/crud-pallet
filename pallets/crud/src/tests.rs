@@ -31,3 +31,14 @@ fn test_something3_with_value_query() {
 		System::assert_last_event(Event::SomethingStored { something: 42, who: 1 }.into());
 	});
 }
+
+// #[test]
+// fn test_something4_with_result_query() {
+// 	new_test_ext().execute_with(|| {
+// 		System::set_block_number(1);
+// 		assert_eq!(Something4::<Test>::get(), Ok(0));
+// 		assert_ok!(Crud::do_something4(RuntimeOrigin::signed(1), 42));
+// 		assert_eq!(Something4::<Test>::get(), Ok(42));
+// 		System::assert_last_event(Event::SomethingStored { something: 42, who: 1 }.into());
+// 	});
+// }

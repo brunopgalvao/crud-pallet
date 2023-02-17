@@ -34,13 +34,16 @@ pub mod pallet {
 	pub type Something2<T> = StorageValue<_, u32>;
 
 	#[pallet::type_value]
-	pub fn MyDefault<T: Config>() -> u32 { 3 }
+	pub fn MyDefault3<T: Config>() -> u32 { 3 }
 
 	#[pallet::storage]
-	pub type Something3<T> = StorageValue<_, u32, ValueQuery, MyDefault<T>>;
+	pub type Something3<T> = StorageValue<_, u32, ValueQuery, MyDefault3<T>>;
 
-	#[pallet::storage]
-	pub type Something4<T> = StorageValue<_, u32, ValueQuery>;
+	// TODO: Get this to work
+	// #[pallet::type_value]
+	// pub fn MyDefault4<T: Config>() -> Result<u32, Error<T>> { Ok(0) }
+	// #[pallet::storage]
+	// pub type Something4<T> = StorageValue<_, u32, ResultQuery, MyDefault4<T>>;
 
 	#[pallet::storage]
 	pub type Something5<T> = StorageValue<_, u32, OptionQuery>;
@@ -100,5 +103,14 @@ pub mod pallet {
 			Self::deposit_event(Event::SomethingStored { something, who });
 			Ok(())
 		}
+
+		// #[pallet::call_index(3)]
+		// #[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		// pub fn do_something4(origin: OriginFor<T>, something: u32) -> DispatchResult {
+		// 	let who = ensure_signed(origin)?;
+		// 	<Something4<T>>::put(Ok(something));
+		// 	Self::deposit_event(Event::SomethingStored { something, who });
+		// 	Ok(())
+		// }
 	}
 }
