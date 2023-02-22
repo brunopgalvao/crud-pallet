@@ -32,6 +32,19 @@ fn test_something3_with_value_query() {
 	});
 }
 
+#[test]
+fn test_something7_with_struct() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+
+		assert_ok!(Crud::do_something7(RuntimeOrigin::signed(1), 2, b"Alex".to_vec()));
+		//println!("{:?}", Something7::<Test>::get());
+		assert_eq!(Something7::<Test>::get().unwrap().id, 2);
+		assert_eq!(Something7::<Test>::get().unwrap().name, b"Alex".to_vec());
+		System::assert_last_event(Event::SomethingStored { something: 2, who: 1 }.into());
+	});
+}
+
 // #[test]
 // fn test_something4_with_result_query() {
 // 	new_test_ext().execute_with(|| {

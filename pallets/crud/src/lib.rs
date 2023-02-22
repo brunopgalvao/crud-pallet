@@ -24,6 +24,10 @@ pub mod pallet {
 	#[pallet::config]
 	pub trait Config: frame_system::Config {
 		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
+
+		/// Good practice to limit storage.
+		#[pallet::constant]
+		type MaxLengthName: Get<u32>;
 	}
 
 	#[pallet::storage]
@@ -51,6 +55,21 @@ pub mod pallet {
 	#[pallet::storage]
 	pub type Something6<T: Config> = StorageValue<_, T::AccountId, OptionQuery>;
 
+
+	//Just to test to store a Client
+	// It is recomendable to set boundaries, for example the name is good if is a BoundedVec
+	#[derive(Encode, Decode, Default, TypeInfo, MaxEncodedLen, PartialEqNoBound, RuntimeDebug)]
+	#[scale_info(skip_type_params(T))]
+	pub struct Client<T: Config> {
+		/// Client Id.
+		pub id: u32,
+		/// Name client.
+		pub name: BoundedVec<u8, T::MaxLengthName>
+	}
+
+	#[pallet::storage]
+	pub(super) type Something7<T: Config> = StorageValue<_, Client<T>, OptionQuery>;
+
 	#[pallet::storage]
 	pub type SomeMap1<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, u32, ValueQuery>;
 
@@ -73,6 +92,7 @@ pub mod pallet {
 	pub enum Error<T> {
 		NoneValue,
 		StorageOverflow,
+		NameTooLong,
 	}
 
 	#[pallet::call]
@@ -101,6 +121,19 @@ pub mod pallet {
 			let who = ensure_signed(origin)?;
 			<Something3<T>>::put(something);
 			Self::deposit_event(Event::SomethingStored { something, who });
+			Ok(())
+		}
+
+		#[pallet::call_index(3)]
+		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		pub fn do_something7(origin: OriginFor<T>, id: u32, name: Vec<u8>) -> DispatchResult {
+			let who = ensure_signed(origin)?;
+
+			let bounded_name: BoundedVec<_, _> =
+				name.try_into().map_err(|_| Error::<T>::NameTooLong)?;
+			
+			<Something7<T>>::put(Client {id, name: bounded_name});
+			Self::deposit_event(Event::SomethingStored { something: id, who });
 			Ok(())
 		}
 

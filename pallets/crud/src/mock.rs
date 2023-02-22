@@ -1,5 +1,5 @@
 use crate as pallet_crud;
-use frame_support::traits::{ConstU16, ConstU64};
+use frame_support::traits::{ConstU16, ConstU64, ConstU32};
 use frame_system as system;
 use sp_core::H256;
 use sp_runtime::{
@@ -51,6 +51,8 @@ impl system::Config for Test {
 
 impl pallet_crud::Config for Test {
 	type RuntimeEvent = RuntimeEvent;
+	// Set MaxLength of nick name to a desired value.
+	type MaxLengthName = ConstU32<5>;
 }
 
 // Build genesis storage according to the mock runtime.

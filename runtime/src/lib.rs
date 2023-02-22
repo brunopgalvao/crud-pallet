@@ -278,6 +278,8 @@ impl pallet_sudo::Config for Runtime {
 /// Configure the pallet-crud in pallets/template.
 impl pallet_crud::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
+	// Set MaxLength of a name to a desired value.
+	type MaxLengthName = ConstU32<32>;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
