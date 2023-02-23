@@ -86,6 +86,10 @@ pub mod pallet {
 		ValueQuery
 	>;
 
+	#[pallet::storage]
+	pub type CountedMap<T> = CountedStorageMap<_, Blake2_128Concat, u32, u32>;
+
+
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
@@ -130,7 +134,7 @@ pub mod pallet {
 
 		#[pallet::call_index(3)]
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn do_something7(origin: OriginFor<T>, id: u32, name: Vec<u8>) -> DispatchResult {
+		pub fn do_something4(origin: OriginFor<T>, id: u32, name: Vec<u8>) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
 			let bounded_name: BoundedVec<_, _> =
@@ -138,6 +142,16 @@ pub mod pallet {
 			
 			<Something7<T>>::put(Client {id, name: bounded_name});
 			Self::deposit_event(Event::SomethingStored { something: id, who });
+			Ok(())
+		}
+
+		#[pallet::call_index(4)]
+		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		pub fn do_something5(origin: OriginFor<T>, something: u32) -> DispatchResult {
+			let who = ensure_signed(origin)?;
+			let index = <CountedMap<T>>::count();
+			<CountedMap<T>>::set(index, Some(something));
+			Self::deposit_event(Event::SomethingStored { something, who });
 			Ok(())
 		}
 
