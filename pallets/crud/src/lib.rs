@@ -10,6 +10,10 @@ mod tests;
 mod benchmarking;
 
 pub use pallet::*;
+use frame_support::{
+    BoundedVec
+};
+use sp_std::vec::Vec;
 
 #[frame_support::pallet]
 pub mod pallet {
