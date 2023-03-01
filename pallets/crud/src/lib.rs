@@ -42,22 +42,22 @@ pub mod pallet {
 	pub fn MyDefault3<T: Config>() -> u32 { 3 }
 
 	#[pallet::storage]
-	pub type Something3<T> = StorageValue<_, u32, ValueQuery, MyDefault3<T>>;
+	pub type NumberWithDefault<T> = StorageValue<_, u32, ValueQuery, MyDefault3<T>>;
 
 	#[pallet::type_value]
-	pub fn MyDefault4<T: Config>() -> Result<u32, Error<T>> { Ok(0) }
+	pub fn MyDefaultResult<T: Config>() -> Result<u32, Error<T>> { Ok(0) }
 	#[pallet::storage]
-	pub type Something4<T> = StorageValue<_, u32, ResultQuery<Error::<T>::NoneValue>, MyDefault4<T>>;
+	pub type NumberResultQuery<T> = StorageValue<_, u32, ResultQuery<Error::<T>::NoneValue>, MyDefaultResult<T>>;
 
 	#[pallet::storage]
-	pub type Something5<T> = StorageValue<_, u32, OptionQuery>;
+	pub type NumberOptionQuery<T> = StorageValue<_, u32, OptionQuery>;
 
 	#[pallet::storage]
-	pub type Something6<T: Config> = StorageValue<_, T::AccountId, OptionQuery>;
+	pub type AccountOptionQuery<T: Config> = StorageValue<_, T::AccountId, OptionQuery>;
 
 
 	// Just to test to store a Client
-	// It is recomendable to set boundaries, for example the name is good if is a BoundedVec
+	// It is recommendable to set boundaries, for example the name is good if is a BoundedVec
 	#[derive(Encode, Decode, Default, TypeInfo, MaxEncodedLen, PartialEqNoBound, RuntimeDebug)]
 	#[scale_info(skip_type_params(T))]
 	pub struct Client<T: Config> {
@@ -92,6 +92,8 @@ pub mod pallet {
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
 		NumberStored { number: u32, who: T::AccountId },
+		NumberWithDefaultStored { number: u32, who: T::AccountId },
+		NumberResultQueryStored { number: u32, who: T::AccountId },
 		SomethingStored { something: u32, who: T::AccountId },
 	}
 
@@ -109,29 +111,30 @@ pub mod pallet {
 		pub fn set_number(origin: OriginFor<T>, number: u32) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 			<Number<T>>::put(number);
+			<NumberWithDefault<T>>::put(number);
 			Self::deposit_event(Event::NumberStored { number, who });
+			Ok(())
+		}
+
+		#[pallet::call_index(1)]
+		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		pub fn set_number_with_default(origin: OriginFor<T>, number: u32) -> DispatchResult {
+			let who = ensure_signed(origin)?;
+			<NumberWithDefault<T>>::put(number);
+			Self::deposit_event(Event::NumberWithDefaultStored { number, who });
 			Ok(())
 		}
 
 		#[pallet::call_index(2)]
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn do_something3(origin: OriginFor<T>, something: u32) -> DispatchResult {
+		pub fn set_number_result_query(origin: OriginFor<T>, number: u32) -> DispatchResult {
 			let who = ensure_signed(origin)?;
-			<Something3<T>>::put(something);
-			Self::deposit_event(Event::SomethingStored { something, who });
+			<NumberResultQuery<T>>::put(number);
+			Self::deposit_event(Event::NumberResultQueryStored { number, who });
 			Ok(())
 		}
 
 		#[pallet::call_index(3)]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn do_something4(origin: OriginFor<T>, something: u32) -> DispatchResult {
-			let who = ensure_signed(origin)?;
-			<Something4<T>>::put(something);
-			Self::deposit_event(Event::SomethingStored { something, who });
-			Ok(())
-		}
-
-		#[pallet::call_index(4)]
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
 		pub fn do_something5(origin: OriginFor<T>, id: u32, name: Vec<u8>) -> DispatchResult {
 			let who = ensure_signed(origin)?;
@@ -144,7 +147,7 @@ pub mod pallet {
 			Ok(())
 		}
 
-		#[pallet::call_index(5)]
+		#[pallet::call_index(4)]
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
 		pub fn do_something6(origin: OriginFor<T>, something: u32) -> DispatchResult {
 			let who = ensure_signed(origin)?;
