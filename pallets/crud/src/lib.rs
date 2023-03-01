@@ -48,10 +48,10 @@ pub mod pallet {
 	pub type Something3<T> = StorageValue<_, u32, ValueQuery, MyDefault3<T>>;
 
 	// TODO: Get this to work
-	// #[pallet::type_value]
-	// pub fn MyDefault4<T: Config>() -> Result<u32, Error<T>> { Ok(0) }
-	// #[pallet::storage]
-	// pub type Something4<T> = StorageValue<_, u32, ResultQuery, MyDefault4<T>>;
+	#[pallet::type_value]
+	pub fn MyDefault4<T: Config>() -> Result<u32, Error<T>> { Ok(0) }
+	#[pallet::storage]
+	pub type Something4<T> = StorageValue<_, u32, ResultQuery<Error::<T>::NoneValue>, MyDefault4<T>>;
 
 	#[pallet::storage]
 	pub type Something5<T> = StorageValue<_, u32, OptionQuery>;
@@ -60,7 +60,7 @@ pub mod pallet {
 	pub type Something6<T: Config> = StorageValue<_, T::AccountId, OptionQuery>;
 
 
-	//Just to test to store a Client
+	// Just to test to store a Client
 	// It is recomendable to set boundaries, for example the name is good if is a BoundedVec
 	#[derive(Encode, Decode, Default, TypeInfo, MaxEncodedLen, PartialEqNoBound, RuntimeDebug)]
 	#[scale_info(skip_type_params(T))]
@@ -77,6 +77,7 @@ pub mod pallet {
 	#[pallet::storage]
 	pub type SomeMap1<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, u32, ValueQuery>;
 
+	// Two keys that can pull up the same value
 	#[pallet::storage]
 	pub type SomeDoubleMap1<T: Config> = StorageDoubleMap<
 		_, 
@@ -133,14 +134,14 @@ pub mod pallet {
 			Ok(())
 		}
 
-		// #[pallet::call_index(3)]
-		// #[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		// pub fn do_something4(origin: OriginFor<T>, something: u32) -> DispatchResult {
-		// 	let who = ensure_signed(origin)?;
-		// 	<Something4<T>>::put(Ok(something));
-		// 	Self::deposit_event(Event::SomethingStored { something, who });
-		// 	Ok(())
-		// }
+		#[pallet::call_index(3)]
+		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		pub fn do_something4(origin: OriginFor<T>, something: u32) -> DispatchResult {
+			let who = ensure_signed(origin)?;
+			<Something4<T>>::put(something);
+			Self::deposit_event(Event::SomethingStored { something, who });
+			Ok(())
+		}
 
 		#[pallet::call_index(4)]
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
