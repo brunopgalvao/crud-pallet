@@ -78,6 +78,9 @@ pub mod pallet {
 	pub type SomeMap1<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, u32, ValueQuery>;
 
 	#[pallet::storage]
+	pub type CountedStorageMap1<T: Config> = CountedStorageMap<_, Blake2_128Concat, u32, u32>;
+
+	#[pallet::storage]
 	pub type SomeDoubleMap1<T: Config> = StorageDoubleMap<
 		_, 
 		Blake2_128Concat, u32, 
