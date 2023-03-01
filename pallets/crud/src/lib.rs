@@ -35,11 +35,8 @@ pub mod pallet {
 	}
 
 	#[pallet::storage]
-	#[pallet::getter(fn something1)]
-	pub type Something1<T> = StorageValue<_, u32>;
-
-	#[pallet::storage]
-	pub type Something2<T> = StorageValue<_, u32>;
+	#[pallet::getter(fn number)]
+	pub type Number<T> = StorageValue<_, u32>;
 
 	#[pallet::type_value]
 	pub fn MyDefault3<T: Config>() -> u32 { 3 }
@@ -47,7 +44,6 @@ pub mod pallet {
 	#[pallet::storage]
 	pub type Something3<T> = StorageValue<_, u32, ValueQuery, MyDefault3<T>>;
 
-	// TODO: Get this to work
 	#[pallet::type_value]
 	pub fn MyDefault4<T: Config>() -> Result<u32, Error<T>> { Ok(0) }
 	#[pallet::storage]
@@ -95,6 +91,7 @@ pub mod pallet {
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
 	pub enum Event<T: Config> {
+		NumberStored { number: u32, who: T::AccountId },
 		SomethingStored { something: u32, who: T::AccountId },
 	}
 
@@ -109,19 +106,10 @@ pub mod pallet {
 	impl<T: Config> Pallet<T> {
 		#[pallet::call_index(0)]
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn do_something1(origin: OriginFor<T>, something: u32) -> DispatchResult {
+		pub fn set_number(origin: OriginFor<T>, number: u32) -> DispatchResult {
 			let who = ensure_signed(origin)?;
-			<Something1<T>>::put(something);
-			Self::deposit_event(Event::SomethingStored { something, who });
-			Ok(())
-		}
-
-		#[pallet::call_index(1)]
-		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn do_something2(origin: OriginFor<T>, something: u32) -> DispatchResult {
-			let who = ensure_signed(origin)?;
-			<Something2<T>>::put(something);
-			Self::deposit_event(Event::SomethingStored { something, who });
+			<Number<T>>::put(number);
+			Self::deposit_event(Event::NumberStored { number, who });
 			Ok(())
 		}
 
