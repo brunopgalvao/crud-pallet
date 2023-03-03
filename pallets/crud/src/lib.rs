@@ -68,7 +68,7 @@ pub mod pallet {
 	}
 
 	#[pallet::storage]
-	pub(super) type Something7<T: Config> = StorageValue<_, Client<T>, OptionQuery>;
+	pub type Something7<T: Config> = StorageValue<_, Client<T>, OptionQuery>;
 
 	#[pallet::storage]
 	pub type SomeMap1<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, u32, ValueQuery>;
@@ -94,6 +94,7 @@ pub mod pallet {
 		NumberStored { number: u32, who: T::AccountId },
 		NumberWithDefaultStored { number: u32, who: T::AccountId },
 		NumberResultQueryStored { number: u32, who: T::AccountId },
+		NumberOptionQueryStored { number: u32, who: T::AccountId },
 		SomethingStored { something: u32, who: T::AccountId },
 	}
 
@@ -136,6 +137,15 @@ pub mod pallet {
 
 		#[pallet::call_index(3)]
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		pub fn set_number_option_query(origin: OriginFor<T>, number: u32) -> DispatchResult {
+			let who = ensure_signed(origin)?;
+			<NumberOptionQuery<T>>::put(number);
+			Self::deposit_event(Event::NumberOptionQueryStored { number, who });
+			Ok(())
+		}
+
+		#[pallet::call_index(4)]
+		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
 		pub fn do_something5(origin: OriginFor<T>, id: u32, name: Vec<u8>) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
@@ -147,7 +157,7 @@ pub mod pallet {
 			Ok(())
 		}
 
-		#[pallet::call_index(4)]
+		#[pallet::call_index(5)]
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
 		pub fn do_something6(origin: OriginFor<T>, something: u32) -> DispatchResult {
 			let who = ensure_signed(origin)?;

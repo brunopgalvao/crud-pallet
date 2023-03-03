@@ -44,6 +44,17 @@ fn test_number_with_result_query() {
 }
 
 #[test]
+fn test_number_with_option_query() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_eq!(NumberOptionQuery::<Test>::get(), None);
+		assert_ok!(Crud::set_number_option_query(RuntimeOrigin::signed(1), 42));
+		assert_eq!(NumberOptionQuery::<Test>::get(), Some(42));
+		System::assert_last_event(Event::NumberOptionQueryStored { number: 42, who: 1 }.into());
+	});
+}
+
+#[test]
 fn counted_map_works() {
     new_test_ext().execute_with(|| {
         assert_eq!(CountedMap::<Test>::count(), 0);
