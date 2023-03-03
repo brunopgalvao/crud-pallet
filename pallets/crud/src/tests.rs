@@ -1,5 +1,6 @@
 use crate::{mock::*, *};
-use frame_support::assert_ok;
+use frame_support::{ assert_ok };
+
 
 #[test]
 fn test_number_with_getter() {
@@ -83,5 +84,18 @@ fn test_set_counted_map() {
 		assert_ok!(Crud::set_counted_map(RuntimeOrigin::signed(1), 42));
 		assert_eq!(CountedMap::<Test>::count(), 1);
         assert_eq!(CountedMap::<Test>::get(0), Some(42));
+		// TODO: Get this to work:
+		// System::assert_last_event(Event::NumberStored { number: 42, who: 1 }.into());
     })
+}
+
+#[test]
+fn test_set_map() {
+	new_test_ext().execute_with(|| {
+		assert_eq!(SomeMap::<Test>::get(&1), 0);
+		assert_ok!(Crud::set_some_map(RuntimeOrigin::signed(1), 1, 42));
+		assert_eq!(SomeMap::<Test>::get(&1), 42);
+		// TODO: Get this to work:
+		// System::assert_last_event(Event::SomeMapStored { account: 1, number: 42, who: 1 }.into());
+	})
 }

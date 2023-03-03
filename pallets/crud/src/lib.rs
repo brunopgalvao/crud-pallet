@@ -55,7 +55,6 @@ pub mod pallet {
 	#[pallet::storage]
 	pub type AccountData<T: Config> = StorageValue<_, T::AccountId, OptionQuery>;
 
-
 	// It is recommendable to set boundaries, for example the name is good if is a BoundedVec
 	#[derive(Encode, Decode, Default, TypeInfo, MaxEncodedLen, PartialEqNoBound, RuntimeDebug)]
 	#[scale_info(skip_type_params(T))]
@@ -69,22 +68,21 @@ pub mod pallet {
 	#[pallet::storage]
 	pub type ClientData<T: Config> = StorageValue<_, Client<T>, OptionQuery>;
 
-	#[pallet::storage]
-	pub type SomeMap1<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, u32, ValueQuery>;
 
-	// Two keys that can pull up the same value
 	#[pallet::storage]
-	pub type SomeDoubleMap1<T: Config> = StorageDoubleMap<
+	pub type CountedMap<T> = CountedStorageMap<_, Blake2_128Concat, u32, u32>;
+
+	#[pallet::storage]
+	pub type SomeMap<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, u32, ValueQuery>;
+
+	#[pallet::storage]
+	pub type SomeDoubleMap<T: Config> = StorageDoubleMap<
 		_, 
 		Blake2_128Concat, u32, 
 		Blake2_128Concat, T::AccountId, 
 		u32, 
 		ValueQuery
 	>;
-
-	// TODO: test the new counted map storage alias that will be available in the next release
-	#[pallet::storage]
-	pub type CountedMap<T> = CountedStorageMap<_, Blake2_128Concat, u32, u32>;
 
 
 	#[pallet::event]
@@ -96,6 +94,7 @@ pub mod pallet {
 		NumberOptionQueryStored { number: u32, who: T::AccountId },
 		AccountDataStored { account: T::AccountId, who: T::AccountId },
 		ClientDataStored { client: u32, who: T::AccountId },
+		SomeMapStored { account: T::AccountId, number: u32, who: T::AccountId }
 	}
 
 	#[pallet::error]
@@ -173,6 +172,15 @@ pub mod pallet {
 			let index = <CountedMap<T>>::count();
 			<CountedMap<T>>::set(index, Some(number));
 			Self::deposit_event(Event::NumberStored { number, who });
+			Ok(())
+		}
+
+		#[pallet::call_index(7)]
+		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
+		pub fn set_some_map(origin: OriginFor<T>, account: T::AccountId, number: u32) -> DispatchResult {
+			let who = ensure_signed(origin)?;
+			<SomeMap<T>>::set(account.clone(), number);
+			Self::deposit_event(Event::SomeMapStored { account: account.clone(), number, who });
 			Ok(())
 		}
 	}
