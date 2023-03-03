@@ -55,6 +55,17 @@ fn test_number_with_option_query() {
 }
 
 #[test]
+fn test_set_account_data() {
+	new_test_ext().execute_with(|| {
+		System::set_block_number(1);
+		assert_eq!(AccountData::<Test>::get(), None);
+		assert_ok!(Crud::set_account(RuntimeOrigin::signed(1), 1));
+		assert_eq!(AccountData::<Test>::get(), Some(1));
+		System::assert_last_event(Event::AccountDataStored { account: 1, who: 1 }.into());
+	});
+}
+
+#[test]
 fn counted_map_works() {
     new_test_ext().execute_with(|| {
         assert_eq!(CountedMap::<Test>::count(), 0);
