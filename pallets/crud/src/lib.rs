@@ -56,7 +56,6 @@ pub mod pallet {
 	pub type AccountData<T: Config> = StorageValue<_, T::AccountId, OptionQuery>;
 
 
-	// Just to test to store a Client
 	// It is recommendable to set boundaries, for example the name is good if is a BoundedVec
 	#[derive(Encode, Decode, Default, TypeInfo, MaxEncodedLen, PartialEqNoBound, RuntimeDebug)]
 	#[scale_info(skip_type_params(T))]
@@ -68,7 +67,7 @@ pub mod pallet {
 	}
 
 	#[pallet::storage]
-	pub type Something7<T: Config> = StorageValue<_, Client<T>, OptionQuery>;
+	pub type ClientData<T: Config> = StorageValue<_, Client<T>, OptionQuery>;
 
 	#[pallet::storage]
 	pub type SomeMap1<T: Config> = StorageMap<_, Blake2_128Concat, T::AccountId, u32, ValueQuery>;
@@ -96,7 +95,7 @@ pub mod pallet {
 		NumberResultQueryStored { number: u32, who: T::AccountId },
 		NumberOptionQueryStored { number: u32, who: T::AccountId },
 		AccountDataStored { account: T::AccountId, who: T::AccountId },
-		SomethingStored { something: u32, who: T::AccountId },
+		ClientDataStored { client: u32, who: T::AccountId },
 	}
 
 	#[pallet::error]
@@ -147,7 +146,7 @@ pub mod pallet {
 
 		#[pallet::call_index(4)]
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn set_account(origin: OriginFor<T>, account: T::AccountId) -> DispatchResult {
+		pub fn set_account_data(origin: OriginFor<T>, account: T::AccountId) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 			<AccountData<T>>::put(account.clone());
 			Self::deposit_event(Event::AccountDataStored { account: account.clone(), who });
@@ -156,24 +155,24 @@ pub mod pallet {
 
 		#[pallet::call_index(5)]
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn do_something5(origin: OriginFor<T>, id: u32, name: Vec<u8>) -> DispatchResult {
+		pub fn set_client_data(origin: OriginFor<T>, id: u32, name: Vec<u8>) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 
 			let bounded_name: BoundedVec<_, _> =
 				name.try_into().map_err(|_| Error::<T>::NameTooLong)?;
 			
-			<Something7<T>>::put(Client {id, name: bounded_name});
-			Self::deposit_event(Event::SomethingStored { something: id, who });
+			<ClientData<T>>::put(Client {id, name: bounded_name});
+			Self::deposit_event(Event::ClientDataStored { client: id, who });
 			Ok(())
 		}
 
 		#[pallet::call_index(6)]
 		#[pallet::weight(10_000 + T::DbWeight::get().writes(1).ref_time())]
-		pub fn do_something6(origin: OriginFor<T>, something: u32) -> DispatchResult {
+		pub fn set_counted_map(origin: OriginFor<T>, number: u32) -> DispatchResult {
 			let who = ensure_signed(origin)?;
 			let index = <CountedMap<T>>::count();
-			<CountedMap<T>>::set(index, Some(something));
-			Self::deposit_event(Event::SomethingStored { something, who });
+			<CountedMap<T>>::set(index, Some(number));
+			Self::deposit_event(Event::NumberStored { number, who });
 			Ok(())
 		}
 	}
